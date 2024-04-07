@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package cbs.customer;
+
 service UserService {
   rpc RegisterUser (UserRequest) returns (UserResponse) {}
   rpc LoginUser (LoginRequest) returns (LoginResponse) {}
