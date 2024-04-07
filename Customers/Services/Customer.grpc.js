@@ -1,9 +1,9 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
-const User=require('./migrations/20240407051620-create-user')
-const db = require('./config/db');
-const { insertUser } = require('./Services/CustomerClient');
-const PROTO_PATH = __dirname + '/protos/customer.proto';
+const User = require('../migrations/20240407051620-create-user');
+const db = require('../config/db');
+const { insertUser } = require('./CustomerClient');
+const PROTO_PATH = __dirname + '/../protos/customer.proto';
 //const PROTO_PATH =   '../../protos/customer.proto';
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true });
