@@ -24,10 +24,30 @@ const create = async (payload) => {
         console.log("Received response:", response);
         return response;
     } catch (error) {
-        console.error("Error sending gRPC request:", error);
-        throw error; // Re-throw the error for higher-level handling
+        console.error("Error sending gRPC request for registartion:", error);
+        throw error; 
     }
 };
 
-module.exports = { create };
+const login = async (payload) => {
+    console.log("Sending payload for login:", payload);
+    try {
+        const response = await new Promise((resolve, reject) => {
+            customerStub.LoginUser(payload, (err, res) => {
+                if (err) reject(err);
+                else {
+                    console.log("Received response:", res);
+                    resolve(res);
+                }
+            });
+        });
+        return response;
+    } catch (error) {
+        console.error("Error sending gRPC request for login:", error);
+        throw error;
+    }
+};
+
+module.exports = { create, login };
+
 

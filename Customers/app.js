@@ -2,6 +2,7 @@ const grpc = require('@grpc/grpc-js');
 const path= require('path')
 const protoLoader = require('@grpc/proto-loader');
 const User=require('./migrations/20240407051620-create-user')
+const bcrypt = require('bcryptjs');
 const db = require('./config/db');
 const { insertUser } = require('./Services/CustomerClient');
 const { request } = require('express');
@@ -12,9 +13,10 @@ const sequelize = require('sequelize');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true });
 const userProto = grpc.loadPackageDefinition(packageDefinition);
 
-function registerUser(call, callback) {
+async function registerUser(call, callback) {
   const {firstName, lastName, email, phoneNumber, address, password } = call.request;
-  insertUser(firstName, lastName, email, phoneNumber, address, password)
+  const hashedPassword = await bcrypt.hash(password,10)
+  insertUser(firstName, lastName, email, phoneNumber, address, hashedPassword)
     .then(() => {
       callback(null, { message: 'User registered successfully' });
     })

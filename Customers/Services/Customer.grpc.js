@@ -2,7 +2,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const User = require('../migrations/20240407051620-create-user');
 const db = require('../config/db');
-const { insertUser } = require('./CustomerClient');
+const { insertUser, authenticateUser } = require('./CustomerClient');
 const sequelize = require('sequelize')
 
 const packageDefinition = protoLoader.loadSync(path.join(__dirname, "../protos/customer.proto"), { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true });
@@ -18,17 +18,15 @@ async function registerUser(call, callback) {
   }
 }
 
-function loginUser(call, callback) {
+async function loginUser(call, callback) {
+  try{
   const { phoneNumber, password } = call.request;
-  authenticateUser(phoneNumber, password)
-    .then(user => {
-      callback(null, { message: 'User authenticated successfully.', user });
-    })
-    .catch(error => {
-      callback(error, null);
-    });
+  authenticateUser(phoneNumber, password);
+  callback(null, {message:"Customer loggedin!!"});
+  }catch(error){
+    console.log(error);
+  }
 }
-
 function main() {
   const server = new grpc.Server();
   server.addService(userProto.service, { RegisterUser: registerUser, LoginUser: loginUser });
