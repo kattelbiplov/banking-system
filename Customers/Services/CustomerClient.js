@@ -1,13 +1,17 @@
-const db = require('../config/db');
+const connectDB = require('../config/db');
+
 
 async function insertUser(firstName, lastName, email, phoneNumber, address, password) {
-  const sqlQuery = `INSERT INTO Customers (firstName, lastName, email, phoneNumber, address, password)
-                    VALUES (?,?,?,?,?,?)`
   try {
-    const [result] = await db.query(sqlQuery, { replacements: [firstName, lastName, email, phoneNumber, address, password] });
+    console.log("nhhbhnbj",firstName, lastName, email, phoneNumber, address, password)
+    const sql = `INSERT INTO Customers (firstName, lastName, email, phoneNumber, address, password) VALUES (?,?,?,?,?,?)`;
+    const values = [firstName, lastName, email, phoneNumber, address, password];
+    const connection  =  await connectDB();
+    const [result] = await connection.query(sql, values);
     return result;
   } catch (error) {
-    throw new Error('Error inserting user:', error);
+    console.error('Error inserting user:', error);
+    throw new Error('Error inserting user: ' + error.message);
   }
 }
 

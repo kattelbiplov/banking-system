@@ -1,8 +1,16 @@
-const { Sequelize } = require('sequelize');
+const mysql = require("mysql2/promise");
 
-const sequelize = new Sequelize('bankingsystem', 'root', 'root', {
-  dialect: 'mysql',
-  host: 'localhost',
-});
+const connectDB = async () => {
+  try {
+    return await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "bankingsystem",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-module.exports = sequelize;
+module.exports = connectDB  
