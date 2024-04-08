@@ -3,7 +3,7 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 
 const customerDefinition = protoLoader.loadSync(
-    path.join(__dirname, "../../../Customers/protos/customer.proto")
+    path.join(__dirname, "../../../protos/customer.proto")
 );
 const customerProto = grpc.loadPackageDefinition(customerDefinition);
 
@@ -16,7 +16,7 @@ const create = async (payload) => {
     console.log("Sending payload:", payload);
     try {
         const response = await new Promise((resolve, reject) => {
-            customerStub.createCustomer(payload, (err, res) => {
+            customerStub.RegisterUser(payload, (err, res) => {
                 if (err) reject(err);
                 else resolve(res);
             });
