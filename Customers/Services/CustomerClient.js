@@ -1,41 +1,82 @@
 const connectDB = require('../config/db');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const secretKeys = require('../config/auth');
+const secretKey = secretKeys.secretKey;
 async function insertUser(firstName, lastName, email, phoneNumber, address, password) {
   try {
-    console.log("user data: ",firstName, lastName, email, phoneNumber, address, password)
-    const sql = `INSERT INTO Customers (firstName, lastName, email, phoneNumber, address, password) VALUES (?,?,?,?,?,?)`;
-    const values = [firstName, lastName, email, phoneNumber, address, password];
-    const connection  =  await connectDB();
-    const [result] = await connection.query(sql, values);
-    return result;
+    console.log("user data: ", firstName, lastName, email, phoneNumber, address, password);
+    // Check if user with phoneNumber already exists
+    const userExistsQuery = `SELECT COUNT(*) AS count FROM Customers WHERE phoneNumber = ?`;
+    const connection = await connectDB();
+    const [existingUser] = await connection.query(userExistsQuery, [phoneNumber]);
+    console.log(existingUser);
+    if (existingUser[0].count > 0) {
+      console.log('User already exist');
+      return {
+        success: false,
+        message: 'User already exist'
+      }
+    } else {
+      const insertQuery = `INSERT INTO Customers (firstName, lastName, email, phoneNumber, address, password) VALUES (?, ?, ?, ?, ?, ?)`;
+      const values = [firstName, lastName, email, phoneNumber, address, password];
+       await connection.query(insertQuery, values);
+      return{
+        success:true,
+        message:'User Registered successfully'
+      }
+    }
+
   } catch (error) {
     console.error('Error inserting user:', error);
     throw new Error('Error inserting user: ' + error.message);
   }
 }
-async function authenticateUser(phoneNumber,password){
-  try{
+
+
+async function authenticateUser(phoneNumber, password) {
+  try {
+    console.log("Login data: ", phoneNumber, password);
+    const sql = `SELECT * FROM Customers WHERE phoneNumber = ?`;
+    const values = [phoneNumber];
+    console.log("values are: ", values)
     const connection = await connectDB();
-    const [user] = connection.query(`SELECT * FROM Customers where phoneNumber=?`,[phoneNumber]);
-    if(!user){
+    const [user] = await connection.query(sql, values);
+
+    // Check if user exists
+    if (!user || user.length === 0) {
       return {
         success: false,
-        message:'User not found'
-      }
+        message: 'User not found'
+      };
     }
-    const matchPassword = await bcrypt.compare(password,user.password)
-    if(!matchPassword){
-      return{
-        success:false,
-        message:'Invalid credential'
-      }
+
+    // Check if password matches
+    const matchPassword = await bcrypt.compare(password, user[0].password);
+    if (!matchPassword) {
+      return {
+        success: false,
+        message: 'Invalid credentials'
+      };
     }
-    return { success: true, user: user };
-  }catch(error){
-    console.log('error',error);
-    throw new Error('Error logginin user: '+ error.message);
+    // Generate JWT token
+    const token = jwt.sign({
+      userId: user[0].userId,
+      email: user[0].email,
+      firstName: user[0].firstName,
+      lastName: user[0].lastName
+    }, secretKey, { expiresIn: '1h' });
+
+    console.log(token);
+    return { success: true, token: token };
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    throw new Error('Error logging in user: ' + error.message);
   }
 }
+
+
+
 module.exports = {
   insertUser,
   authenticateUser

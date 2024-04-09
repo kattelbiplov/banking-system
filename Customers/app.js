@@ -1,44 +1,59 @@
 const grpc = require('@grpc/grpc-js');
-const path= require('path')
+const path = require('path')
 const protoLoader = require('@grpc/proto-loader');
-const User=require('./migrations/20240407051620-create-user')
+const User = require('./migrations/20240407051620-create-user')
 const bcrypt = require('bcryptjs');
 const db = require('./config/db');
-const { insertUser } = require('./Services/CustomerClient');
+const { insertUser, authenticateUser } = require('./Services/CustomerClient');
 const { request } = require('express');
-const PROTO_PATH = path.join(__dirname , '../protos/customer.proto');
+const PROTO_PATH = path.join(__dirname, '../protos/customer.proto');
 const sequelize = require('sequelize');
+const { error } = require('console');
 //const PROTO_PATH =   '../../protos/customer.proto';
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, { keepCase: true, longs: String, enums: String, defaults: true, oneofs: true });
 const userProto = grpc.loadPackageDefinition(packageDefinition);
 
 async function registerUser(call, callback) {
-  const {firstName, lastName, email, phoneNumber, address, password } = call.request;
-  const hashedPassword = await bcrypt.hash(password,10)
-  insertUser(firstName, lastName, email, phoneNumber, address, hashedPassword)
-    .then(() => {
-      callback(null, { message: 'User registered successfully' });
-    })
-    .catch(error => {
-      callback(error, null);
-    });
+  try {
+    const { firstName, lastName, email, phoneNumber, address, password } = call.request;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await insertUser(firstName, lastName, email, phoneNumber, address, hashedPassword);
+
+    if (result.success) {
+      callback(null, { message: result.message });
+    } else {
+      callback(null, { message: result.message })
+    }
+  } catch (error) {
+    console.error('Error registering user:', error);
+    callback(error);
+  }
 }
 
-function loginUser(call, callback) {
+
+async function loginUser(call, callback) {
+  try {
     const { phoneNumber, password } = call.request;
-    authenticateUser(phoneNumber, password)
-      .then(user => {
-        callback(null, { message: 'User authenticated successfully.', user });
-      })
-      .catch(error => {
-        callback(error, null);
-      });
+    const result = await authenticateUser(phoneNumber, password)
+    if (result.success) {
+      callback(null, { message: result.message });
+    } else {
+      callback(null, { message: result.message });
+    }
+  }
+
+  catch (error) {
+    console.log('Error logging in user:', error);
+    callback(error)
+  }
 }
+
+
 
 function main() {
   const server = new grpc.Server();
-  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser:loginUser });
+  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser: loginUser });
   server.bindAsync('0.0.0.0:50052', grpc.ServerCredentials.createInsecure(), (error, port) => {
     if (error) {
       console.error('Failed to start gRPC server.', error);
