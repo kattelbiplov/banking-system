@@ -1,4 +1,4 @@
-const { create ,login} = require("../services/customer.services");
+const { create ,login, getUserProfile} = require("../services/customer.services");
 
 const createCustomer = async (req, res) => {
   const { firstName, lastName, email, phoneNumber, address, password } = req.body;
@@ -21,4 +21,17 @@ const loginUser = async(req,res)=>{
     return res.status(500).json({message:'Internal server error on login part'})
   }
 }
-module.exports = { createCustomer, loginUser };
+
+const getUserProfileData = async (req, res) => {
+  const { userId } = req.params; 
+  try {
+    const userProfile = await getUserProfile(userId);
+    return res.status(200).json({ userProfile });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return res.status(500).json({ message: "Internal server error on fetching user profile" });
+  }
+};
+
+
+module.exports = { createCustomer, loginUser, getUserProfileData };

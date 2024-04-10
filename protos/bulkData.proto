@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package cbs.admin;
+
+
+service DataService {
+    rpc UploadBulkData(stream DataChunk) returns (UploadResponse) {}
+}
+
+message DataChunk {
+    repeated string row = 1;
+}
+
+message UploadResponse {
+    int32 count = 1;
+}

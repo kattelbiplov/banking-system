@@ -7,7 +7,6 @@ async function insertUser(firstName, lastName, email, phoneNumber, address, pass
   try {
     console.log("user data: ", firstName, lastName, email, phoneNumber, address, password);
     // Check if user with phoneNumber already exists
-    const userExistsQuery = `SELECT COUNT(*) AS count FROM Customers WHERE phoneNumber = ?`;
     const connection = await connectDB();
     const [existingUser] = await connection.query(userExistsQuery, [phoneNumber]);
     console.log(existingUser);
@@ -20,13 +19,12 @@ async function insertUser(firstName, lastName, email, phoneNumber, address, pass
     } else {
       const insertQuery = `INSERT INTO Customers (firstName, lastName, email, phoneNumber, address, password) VALUES (?, ?, ?, ?, ?, ?)`;
       const values = [firstName, lastName, email, phoneNumber, address, password];
-       await connection.query(insertQuery, values);
-      return{
-        success:true,
-        message:'User Registered successfully'
+      await connection.query(insertQuery, values);
+      return {
+        success: true,
+        message: 'User Registered successfully'
       }
     }
-
   } catch (error) {
     console.error('Error inserting user:', error);
     throw new Error('Error inserting user: ' + error.message);
@@ -75,9 +73,24 @@ async function authenticateUser(phoneNumber, password) {
   }
 }
 
+async function userProfile(userId) {
+  try {
+    const [rows] = await connection.execute('SELECT * FROM Customers WHERE userId = ?', [userId]);
+    const connection = await connectDB();
+    if (rows.length > 0) {
+      return rows[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.log('Error on user profile :', error);
+    throw new error;
+  }
+}
 
 
 module.exports = {
   insertUser,
-  authenticateUser
+  authenticateUser,
+  userProfile
 };

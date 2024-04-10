@@ -4,7 +4,7 @@ const protoLoader = require('@grpc/proto-loader');
 const User = require('./migrations/20240407051620-create-user')
 const bcrypt = require('bcryptjs');
 const db = require('./config/db');
-const { insertUser, authenticateUser } = require('./Services/CustomerClient');
+const { insertUser, authenticateUser, userProfile } = require('./Services/CustomerClient');
 const { request } = require('express');
 const PROTO_PATH = path.join(__dirname, '../protos/customer.proto');
 const sequelize = require('sequelize');
@@ -49,11 +49,38 @@ async function loginUser(call, callback) {
   }
 }
 
+async function userProfile(userId) {
+  try {
+    const userProfileData = await User.findByPk(userId); 
+    if (!userProfileData) {
+      return {
+        success: false,
+        message: 'User profile not found',
+      };
+    }
+    const userProfileResponse = {
+      success: true,
+      message: 'User profile retrieved successfully',
+      userProfile: {
+        userId: userProfileData.userId,
+        firstName: userProfileData.firstName,
+        lastName: userProfileData.lastName,
+        email: userProfileData.email,
+        phoneNumber: userProfileData.phoneNumber,
+        address: userProfileData.address,
+      },
+    };
+    return userProfileResponse;
+  } catch (error) {
+    console.error('Error retrieving user profile:', error);
+    throw new Error('Error retrieving user profile: ' + error.message);
+  }
+}
 
 
 function main() {
   const server = new grpc.Server();
-  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser: loginUser });
+  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser: loginUser, GetUserProfile:userProfiles });
   server.bindAsync('0.0.0.0:50052', grpc.ServerCredentials.createInsecure(), (error, port) => {
     if (error) {
       console.error('Failed to start gRPC server.', error);

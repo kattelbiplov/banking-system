@@ -5,6 +5,7 @@ package cbs.customer;
 service UserService {
   rpc RegisterUser (UserRequest) returns (UserResponse) {}
   rpc LoginUser (LoginRequest) returns (LoginResponse) {}
+  rpc GetUserProfile (UserProfileRequest) returns (UserProfileResponse) {}
 }
 
 message UserRequest {
@@ -19,6 +20,9 @@ message LoginRequest{
   string phoneNumber = 1;
   string password = 2;
 }
+message UserProfileRequest{
+  string userId=1;
+}
 
 message UserResponse {
   string message = 1;
@@ -26,4 +30,12 @@ message UserResponse {
 
 message LoginResponse{
   string message = 2;
+}
+
+message UserProfileResponse{
+  string firstName = 1;
+  string lastName = 2;
+  string phoneNumber = 3;
+  string address = 4;
+  string email = 5;
 }

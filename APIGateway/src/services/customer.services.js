@@ -25,7 +25,7 @@ const create = async (payload) => {
         return response;
     } catch (error) {
         console.error("Error sending gRPC request for registartion:", error);
-        throw error; 
+        throw error;
     }
 };
 
@@ -48,6 +48,24 @@ const login = async (payload) => {
     }
 };
 
-module.exports = { create, login };
+const getUserProfile = async (userId) => {
+    console.log("Sending request to get user profile for userId:", userId);
+    try {
+        const response = await new Promise((resolve, reject) => {
+            const request = { userId };
+            customerStub.GetUserProfile(request, (err, res) => {
+                if (err) reject(err);
+                else resolve(res);
+            });
+        });
+        console.log("Received user profile data:", response);
+        return response;
+    } catch (error) {
+        console.error("Error sending gRPC request for getting user profile:", error);
+        throw error;
+    }
+};
+
+module.exports = { create, login, getUserProfile };
 
 
