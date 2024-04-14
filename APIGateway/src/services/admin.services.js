@@ -13,22 +13,22 @@ const customerStub = new customerProto.cbs.admin.DataService(
     grpc.credentials.createInsecure()
 );
 
-const createBulkCustomer = async (payload) => {
-    console.log("Sending payload:", payload);
-    try {
-        const response = await new Promise((resolve, reject) => {
-            customerStub.UploadBulkData(payload, (err, res) => {
-                if (err) reject(err);
-                else resolve(res);
-            });
-        });
-        console.log("Received response:", response);
-        return response;
-    } catch (error) {
-        console.error("Error sending gRPC request for registartion:", error);
-        throw error;
-    }
-};
+// const createBulkCustomer = async (payload) => {
+//     console.log("Sending payload:", payload);
+//     try {
+//         const response = await new Promise((resolve, reject) => {
+//             customerStub.UploadBulkData(payload, (err, res) => {
+//                 if (err) reject(err);
+//                 else resolve(res);
+//             });
+//         });
+//         console.log("Received response:", response);
+//         return response;
+//     } catch (error) {
+//         console.error("Error sending gRPC request for registartion:", error);
+//         throw error;
+//     }
+// };
 
 
 const checkCustomers = async(payload)=>{
@@ -48,7 +48,6 @@ const checkCustomers = async(payload)=>{
 }
 
 const editCustomers = async(payload)=>{
-    console.log('sending payload', payload)
     try{
         const response = await new Promise((resolve,reject)=>{
             customerStub.EditCustomer(payload,(err,res)=>{
@@ -63,6 +62,6 @@ const editCustomers = async(payload)=>{
     }
 }
 
-module.exports = { createBulkCustomer, checkCustomers, editCustomers };
+module.exports = { checkCustomers, editCustomers };
 
 

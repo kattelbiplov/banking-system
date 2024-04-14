@@ -3,7 +3,7 @@ const { createCustomer,checkCustomerbyPhoneNumber,EditCustomerbyPhoneNumber } = 
 
 const adminRouter = express.Router();
 
-adminRouter.post("/bulkcustomer", createCustomer);
+// adminRouter.post("/bulkcustomer", createCustomer);
 adminRouter.get("/search-customer",checkCustomerbyPhoneNumber)
 adminRouter.put("/edit-customer",EditCustomerbyPhoneNumber)
 module.exports = adminRouter; 

@@ -49,38 +49,38 @@ async function loginUser(call, callback) {
   }
 }
 
-async function userProfile(userId) {
-  try {
-    const userProfileData = await User.findByPk(userId); 
-    if (!userProfileData) {
-      return {
-        success: false,
-        message: 'User profile not found',
-      };
-    }
-    const userProfileResponse = {
-      success: true,
-      message: 'User profile retrieved successfully',
-      userProfile: {
-        userId: userProfileData.userId,
-        firstName: userProfileData.firstName,
-        lastName: userProfileData.lastName,
-        email: userProfileData.email,
-        phoneNumber: userProfileData.phoneNumber,
-        address: userProfileData.address,
-      },
-    };
-    return userProfileResponse;
-  } catch (error) {
-    console.error('Error retrieving user profile:', error);
-    throw new Error('Error retrieving user profile: ' + error.message);
-  }
-}
+// async function userProfile(userId) {
+//   try {
+//     const userProfileData = await User.findByPk(userId); 
+//     if (!userProfileData) {
+//       return {
+//         success: false,
+//         message: 'User profile not found',
+//       };
+//     }
+//     const userProfileResponse = {
+//       success: true,
+//       message: 'User profile retrieved successfully',
+//       userProfile: {
+//         userId: userProfileData.userId,
+//         firstName: userProfileData.firstName,
+//         lastName: userProfileData.lastName,
+//         email: userProfileData.email,
+//         phoneNumber: userProfileData.phoneNumber,
+//         address: userProfileData.address,
+//       },
+//     };
+//     return userProfileResponse;
+//   } catch (error) {
+//     console.error('Error retrieving user profile:', error);
+//     throw new Error('Error retrieving user profile: ' + error.message);
+//   }
+// }
 
 
 function main() {
   const server = new grpc.Server();
-  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser: loginUser, GetUserProfile:userProfiles });
+  server.addService(userProto.cbs.customer.UserService.service, { RegisterUser: registerUser, LoginUser: loginUser });
   server.bindAsync('0.0.0.0:50052', grpc.ServerCredentials.createInsecure(), (error, port) => {
     if (error) {
       console.error('Failed to start gRPC server.', error);
