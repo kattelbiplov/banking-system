@@ -1,8 +1,9 @@
 const express = require("express");
-const { createBulkCustomer } = require("../controllers/admin.controller");
+const { createCustomer,checkCustomerbyPhoneNumber,EditCustomerbyPhoneNumber } = require("../controllers/admin.controller");
 
 const adminRouter = express.Router();
 
-adminRouter.post("/bulkcustomer", createBulkCustomer);
-
+adminRouter.post("/bulkcustomer", createCustomer);
+adminRouter.get("/search-customer",checkCustomerbyPhoneNumber)
+adminRouter.put("/edit-customer",EditCustomerbyPhoneNumber)
 module.exports = adminRouter; 

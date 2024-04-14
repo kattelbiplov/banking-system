@@ -1,6 +1,7 @@
 const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
+const { rejects } = require("assert");
 
 const customerDefinition = protoLoader.loadSync(
     path.join(__dirname, "../../../protos/bulkData.proto")
@@ -29,6 +30,39 @@ const createBulkCustomer = async (payload) => {
     }
 };
 
-module.exports = { createBulkCustomer };
+
+const checkCustomers = async(payload)=>{
+    console.log('sending payload', payload)
+    try{
+        const response = await new Promise((resolve, reject) => {
+            customerStub.CheckCustomer(payload, (err, res) => {
+                if (err) reject(err);
+                else resolve(res);
+            });
+        });
+        console.log("Received response:", response);
+        return response;
+    }catch(error){
+        console.log('error on checking cutomer from admin',error);
+    }
+}
+
+const editCustomers = async(payload)=>{
+    console.log('sending payload', payload)
+    try{
+        const response = await new Promise((resolve,reject)=>{
+            customerStub.EditCustomer(payload,(err,res)=>{
+                if(err) reject (err);
+                else resolve(res);
+            })
+        });
+        console.log('Received response: ',response)
+        return response;
+    }catch(error){
+        console.log('error on editing customer from admin',error);
+    }
+}
+
+module.exports = { createBulkCustomer, checkCustomers, editCustomers };
 
 

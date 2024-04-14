@@ -5,6 +5,8 @@ package cbs.admin;
 
 service DataService {
     rpc UploadBulkData(stream DataChunk) returns (UploadResponse) {}
+    rpc CheckCustomer (CustomerRequest) returns (CustomerResponse) {}
+    rpc EditCustomer (EditRequest) returns (EditResponse) {}
 }
 
 message DataChunk {
@@ -13,4 +15,25 @@ message DataChunk {
 
 message UploadResponse {
     int32 count = 1;
+}
+
+
+message CustomerRequest{
+    string phoneNumber = 1;
+}
+
+message CustomerResponse {
+  string message =1;
+}
+
+message EditRequest{
+    string phoneNumber = 1;
+    string FirstName = 2;
+    string LastName = 3;
+    string Address = 4;
+    string Email = 5;
+}
+message EditResponse{
+    bool success = 1;
+    string message = 2;
 }
